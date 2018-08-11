@@ -19,11 +19,9 @@ DEFAULT_USER = 'harperdb'
 DEFAULT_PASSWORD = 'harperdb'
 DEFAULT_HDB_PATH = '/home/john/hdb'
 
-
 def frameToExcel(self, narray, label):
     df = pd.DataFrame(narray)
     df.to_excel(writer, sheet_name=label)
-
 
 def connect(url="http://localhost:9925", user="harperdb", password="harperdb"):
 
@@ -149,7 +147,6 @@ def getDirectorySize():
     return folder/MB
 
 
-
 def exportTableToCSV(schema=DEFAULT_SCHEMA, table=DEFAULT_TABLE):
 
     schema_table = schema + '.' + table
@@ -196,7 +193,6 @@ def batchInsertTensors(iterations=1, schema=DEFAULT_SCHEMA, table=DEFAULT_TABLE,
         }
 
         print(postToHarper(op_dict))
-
 
 dropSchema()
 createSchema()
