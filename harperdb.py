@@ -19,9 +19,6 @@ DEFAULT_USER = 'harperdb'
 DEFAULT_PASSWORD = 'harperdb'
 DEFAULT_HDB_PATH = '/home/john/hdb'
 
-def frameToExcel(self, narray, label):
-    df = pd.DataFrame(narray)
-    df.to_excel(writer, sheet_name=label)
 
 def connect(url="http://localhost:9925", user="harperdb", password="harperdb"):
 
@@ -119,7 +116,7 @@ def insertArray(schema=DEFAULT_SCHEMA, table=DEFAULT_TABLE):
 
     data = [
         {
-            "id": 4,
+            "id": uuid.uuid4().hex,
             "time": time.time(),
             "size": size,
             "array": x.tolist()
@@ -137,7 +134,7 @@ def insertArray(schema=DEFAULT_SCHEMA, table=DEFAULT_TABLE):
 
 
 def getDirectorySize():
-    path = '/home/john/hdb'
+    path = DEFAULT_HDB_PATH 
     folder = sum([sum(map(lambda fname: os.path.getsize(os.path.join(
         directory, fname)), files)) for directory, folders, files in os.walk(path)])
     MB = 1024*1024.0
