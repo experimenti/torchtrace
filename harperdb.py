@@ -23,7 +23,8 @@ DEFAULT_HDB_PATH = '/home/john/hdb'
 
 def connect(url=DEFAULT_URL, user=DEFAULT_USER, password=DEFAULT_PASSWORD):
 
-    # validate that the server is up and running
+    # validate that the server is up and runnin
+
     ping(url, user, password)
 
 
