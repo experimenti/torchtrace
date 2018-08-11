@@ -11,6 +11,14 @@ import os
 import time
 import uuid
 
+DEFAULT_SCHEMA = 'torchtrace'
+DEFAULT_TABLE = 'trace'
+DEFAULT_HASH = 'id'
+DEFAULT_URL = 'http://localhost:9925'
+DEFAULT_USER = 'harperdb'
+DEFAULT_PASSWORD = 'harperdb'
+DEFAULT_HDB_PATH = '/home/john/hdb'
+
 
 def frameToExcel(self, narray, label):
     df = pd.DataFrame(narray)
@@ -41,26 +49,36 @@ def printResponse(response):
     print(response)
 
 
-def validateSchema(user, password, url="http://localhost:9925", schema_name="torchtrace"):
+def validateSchema(user=DEFAULT_USER, password=DEFAULT_PASSWORD, url=DEFAULT_URL, schema_name=DEFAULT_SCHEMA):
 
     op_dict = {
         'operation': 'create_schema',
         'schema': schema_name
     }
-    postToHarper(op_dict, url, 'harperdb', 'harperdb')
+    postToHarper(op_dict, url, user=DEFAULT_USER, password=DEFAULT_PASSWORD)
 
 
-def createSchema(user, password, url="http://localhost:9925", schema_name="torchtrace"):
+def createSchema(user=DEFAULT_USER, password=DEFAULT_PASSWORD, url=DEFAULT_URL, schema_name=DEFAULT_SCHEMA):
 
     op_dict = {
         'operation': 'create_schema',
         'schema': schema_name
     }
 
-    postToHarper(op_dict, url, 'harperdb', 'harperdb')
+    print(postToHarper(op_dict, url, DEFAULT_USER, DEFAULT_PASSWORD))
+
+def dropSchema(user=DEFAULT_USER, password=DEFAULT_PASSWORD, url=DEFAULT_URL, schema_name=DEFAULT_SCHEMA):
+
+    op_dict = {
+        'operation': 'drop_schema',
+        'schema': schema_name
+    }
+
+    print(postToHarper(op_dict, url, user, password))
 
 
-def createTable(table, schema="torchtrace", hash_value="id"):
+
+def createTable(table=DEFAULT_TABLE, schema=DEFAULT_SCHEMA, hash_value=DEFAULT_HASH):
 
     op_dict = {
         'operation': 'create_table',
@@ -88,12 +106,11 @@ def postToHarper(data, url="http://localhost:9925", user='harperdb', password='h
     response = requests.request(
         "POST", url, data=json.dumps(data), headers=headers)
 
-    print(response.text)
-
     return response.json()
 
 
-def insertTensor():
+## serialize an array and insert it as the value
+def insertArray(schema=DEFAULT_SCHEMA, table=DEFAULT_TABLE):
 
     D_in, D_out = 10, 10
 
@@ -102,20 +119,20 @@ def insertTensor():
 
     size = sys.getsizeof(x)
 
-    data_x = [
+    data = [
         {
             "id": 4,
             "time": time.time(),
             "size": size,
-            "tensor": x.tolist()
+            "array": x.tolist()
         }
     ]
 
     op_dict = {
         'operation': 'insert',
-        'schema': 'torchtrace',
-        'table': 'x',
-        'records': data_x
+        'schema': schema,
+        'table': table,
+        'records': data
     }
 
     print(postToHarper(op_dict))
@@ -132,29 +149,25 @@ def getDirectorySize():
     return folder/MB
 
 
-payload = "{\n\"operation\":\"read_log\",\n\"limit\":1000,\n\"start\":0,\n\"from\":\"2017-07-10\",\n\"until\":\"2019-07-11\",\n\"order\":\"desc\"\n}"
 
+def exportTableToCSV(schema=DEFAULT_SCHEMA, table=DEFAULT_TABLE):
 
-def exportTableToCSV():
-
-    query = "SELECT * FROM {0}".format("torchtrace.x")
-
-    print(query)
+    schema_table = schema + '.' + table
+    query = "SELECT * FROM {0}".format(schema_table)
 
     op_dict = {
         "operation": "export_local",
         "format": "csv",
-        #"path":  "/mnt/c/Users/MYCOS-PC/code/exports/batchperf.csv",
-        "path":  "/home/batchperf.csv",
+        "path":  '/home/john',
         "search_operation": {
             "operation": "sql",
                 "sql": query 
         }
     }
 
-    postToHarper(op_dict)
+    print(postToHarper(op_dict))
 
-def batchInsertTensors(iterations=1):
+def batchInsertTensors(iterations=1, schema=DEFAULT_SCHEMA, table=DEFAULT_TABLE, user=DEFAULT_USER, password=DEFAULT_PASSWORD):
 
     for k in range(0, iterations):
 
@@ -171,20 +184,22 @@ def batchInsertTensors(iterations=1):
                 "time": time.time(),
                 "preinsert_size": size,
                 "array_size_bytes": x.size * x.itemsize,
-                "tensor": x.tolist()
+                "array": x.tolist()
             }
         ]
 
         op_dict = {
             'operation': 'insert',
-            'schema': 'torchtrace',
-            'table': 'x',
+            'schema': schema,
+            'table': table,
             'records': data
         }
 
-        postToHarper(op_dict)
+        print(postToHarper(op_dict))
 
 
-# insertTensor()
-batchInsertTensors()
+dropSchema()
+createSchema()
+createTable()
+batchInsertTensors(100)
 exportTableToCSV()
