@@ -10,6 +10,8 @@ import sys
 import os
 import time
 import uuid
+#import asyncio
+#import aiohttp
 
 DEFAULT_SCHEMA = 'torchtrace'
 DEFAULT_TABLE = 'trace'
@@ -19,14 +21,13 @@ DEFAULT_USER = 'harperdb'
 DEFAULT_PASSWORD = 'harperdb'
 DEFAULT_HDB_PATH = '/home/john/hdb'
 
-
-def connect(url="http://localhost:9925", user="harperdb", password="harperdb"):
+def connect(url=DEFAULT_URL, user=DEFAULT_USER, password=DEFAULT_PASSWORD):
 
     # validate that the server is up and running
     ping(url, user, password)
 
 
-def ping(url="http://localhost:9925", user="harperdb", password="harperdb"):
+def ping(url=DEFAULT_URL, user=DEFAULT_USER, password=DEFAULT_PASSWORD):
 
     op_dict = {
         'operation': 'describe_all'
