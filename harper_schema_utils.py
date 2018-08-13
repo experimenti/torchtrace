@@ -20,10 +20,10 @@ DEFAULT_USER = 'harperdb'
 DEFAULT_PASSWORD = 'harperdb'
 DEFAULT_HDB_PATH = '/home/john/hdb'
 
-
 def connect(url=DEFAULT_URL, user=DEFAULT_USER, password=DEFAULT_PASSWORD):
 
-    # validate that the server is up and running
+    # validate that the server is up and runnin
+
     ping(url, user, password)
 
 
@@ -73,6 +73,7 @@ def dropSchema(user=DEFAULT_USER, password=DEFAULT_PASSWORD, url=DEFAULT_URL, sc
     print(postToHarper(op_dict, url, user, password))
 
 
+
 def createTable(table=DEFAULT_TABLE, schema=DEFAULT_SCHEMA, hash_value=DEFAULT_HASH):
 
     op_dict = {
@@ -104,13 +105,8 @@ def postToHarper(data, url="http://localhost:9925", user='harperdb', password='h
     print(response)
     return response.json()
 
-## insert a numpy array as a harperdb table 
-def insert_narray(narray, label, schema=DEFAULT_SCHEMA, initialize_schema=False):
-
-    if (initialize_schema):
-        dropSchema()
-        createSchema()
-        createTable(label)
+## insert a numpy array 
+def insert_narray(narray, label, schema=DEFAULT_SCHEMA, table=DEFAULT_TABLE):
 
     size = sys.getsizeof(narray)
 
@@ -119,7 +115,6 @@ def insert_narray(narray, label, schema=DEFAULT_SCHEMA, initialize_schema=False)
             "id": uuid.uuid4().hex,
             "time": time.time(),
             "size": size,
-            "size_on_disk": getDirectorySize(),
             "narray": narray.tolist()
         }
     ]
@@ -127,7 +122,7 @@ def insert_narray(narray, label, schema=DEFAULT_SCHEMA, initialize_schema=False)
     op_dict = {
         'operation': 'insert',
         'schema': schema,
-        'table': label,
+        'table': table,
         'records': data
     }
 
@@ -192,6 +187,9 @@ def batchInsertTensors(iterations=1, schema=DEFAULT_SCHEMA, table=DEFAULT_TABLE,
 
         print(postToHarper(op_dict))
 
-#createSchema()
-#batchInsertTensors(100)
+
+dropSchema()
+createSchema()
+createTable()
+# batchInsertTensors(100)
 # exportTableToCSV()
