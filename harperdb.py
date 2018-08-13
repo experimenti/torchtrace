@@ -2,6 +2,7 @@
 import numpy as np
 import http.client as http
 import json
+import math
 import urllib.request
 import base64
 import requests
@@ -9,6 +10,7 @@ import sys
 import os
 import time
 import uuid
+import checksize
 #import asyncio
 #import aiohttp
 
@@ -18,7 +20,7 @@ DEFAULT_HASH = 'id'
 DEFAULT_URL = 'http://localhost:9925'
 DEFAULT_USER = 'harperdb'
 DEFAULT_PASSWORD = 'harperdb'
-DEFAULT_HDB_PATH = '/home/john/hdb'
+DEFAULT_HDB_PATH = '/hdb/john_hdb'
 
 
 def connect(url=DEFAULT_URL, user=DEFAULT_USER, password=DEFAULT_PASSWORD):
@@ -40,10 +42,39 @@ def ping(url=DEFAULT_URL, user=DEFAULT_USER, password=DEFAULT_PASSWORD):
     else:
         print(json.dumps(response_json))
 
+def showLogs():
+
+	opt_dict = {
+		"operation":"read_log",
+		"limit":10,
+		"start":0,
+		"from":"2017-07-10",
+		"until":"2019-07-11",
+		"order":"asc"
+	}
+
+	printResponse(postToHarper(opt_dict, url=DEFAULT_URL, user=DEFAULT_USER, password=DEFAULT_PASSWORD))
+
+def convertSize(size_bytes):
+   if size_bytes == 0:
+       return "0B"
+   size_name = ("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")
+   i = int(math.floor(math.log(size_bytes, 1024)))
+   p = math.pow(1024, i)
+   s = round(size_bytes / p, 2)
+   return "%s %s" % (s, size_name[i])
+
+
 
 def printResponse(response):
-    print(response)
+    pp_json(response)
 
+def pp_json(response_json, sort=True, indents=4):
+    if type(response_json) is str:
+        print(json.dumps(json.loads(response_json), sort_keys=sort, indent=indents))
+    else:
+        print(json.dumps(response_json, sort_keys=sort, indent=indents))
+    return None
 
 def validateSchema(user=DEFAULT_USER, password=DEFAULT_PASSWORD, url=DEFAULT_URL, schema_name=DEFAULT_SCHEMA):
 
@@ -53,6 +84,14 @@ def validateSchema(user=DEFAULT_USER, password=DEFAULT_PASSWORD, url=DEFAULT_URL
     }
     postToHarper(op_dict, url, user=DEFAULT_USER, password=DEFAULT_PASSWORD)
 
+
+def describeSchema(user=DEFAULT_USER, password=DEFAULT_PASSWORD, url=DEFAULT_URL, schema_name=DEFAULT_SCHEMA):
+
+    op_dict = {
+        'operation': 'describe_all'
+    }
+
+    printResponse(postToHarper(op_dict, url, user=DEFAULT_USER, password=DEFAULT_PASSWORD))
 
 def createSchema(user=DEFAULT_USER, password=DEFAULT_PASSWORD, url=DEFAULT_URL, schema_name=DEFAULT_SCHEMA):
 
@@ -107,19 +146,19 @@ def postToHarper(data, url="http://localhost:9925", user='harperdb', password='h
 ## insert a numpy array as a harperdb table 
 def insert_narray(narray, label, schema=DEFAULT_SCHEMA, initialize_schema=False):
 
-    if (initialize_schema):
-        dropSchema()
-        createSchema()
-        createTable(label)
-
     size = sys.getsizeof(narray)
+    dir_size = getDirectorySize(DEFAULT_HDB_PATH)
 
+    print("Directory Size: ")
+    print(dir_size)
+
+    
     data = [
         {
             "id": uuid.uuid4().hex,
-            "time": time.time(),
+            "time_stamp": time.time(),
             "size": size,
-            "size_on_disk": getDirectorySize(),
+            "size_on_disk": getDirectorySize(DEFAULT_HDB_PATH),
             "narray": narray.tolist()
         }
     ]
@@ -133,27 +172,40 @@ def insert_narray(narray, label, schema=DEFAULT_SCHEMA, initialize_schema=False)
 
     print(postToHarper(op_dict))
 
+def getDirectorySize(path=DEFAULT_HDB_PATH):
 
-def getDirectorySize():
-    path = DEFAULT_HDB_PATH 
-    folder = sum([sum(map(lambda fname: os.path.getsize(os.path.join(
-        directory, fname)), files)) for directory, folders, files in os.walk(path)])
-    MB = 1024*1024.0
-
-    print("{0}".format(folder/MB))
-
-    return folder/MB
+    return checksize.get_size()
 
 
-def exportTableToCSV(schema=DEFAULT_SCHEMA, table=DEFAULT_TABLE):
+
+def exportResults(schema=DEFAULT_SCHEMA, table=DEFAULT_TABLE):
 
     schema_table = schema + '.' + table
-    query = "SELECT * FROM {0}".format(schema_table)
+    query = "select time_stamp, size, size_on_disk from {0}".format(schema_table) 
+    
+    print("Result Export Query: " + query)
 
     op_dict = {
         "operation": "export_local",
         "format": "csv",
-        "path":  '/home/john',
+        "path":  '/home/john/results',
+        "search_operation": {
+            "operation": "sql",
+                "sql": query 
+    	}
+    }	
+
+    print(postToHarper(op_dict))
+
+def exportTableToCSV(schema=DEFAULT_SCHEMA, table=DEFAULT_TABLE):
+
+    schema_table = schema + '.' + table
+    query = "select time, size, size_on_disk from {0}".format(schema_table) + " order by time"
+
+    op_dict = {
+        "operation": "export_local",
+        "format": "csv",
+        "path":  '/home/john/',
         "search_operation": {
             "operation": "sql",
                 "sql": query 
