@@ -28,7 +28,6 @@ def connect(url=DEFAULT_URL, user=DEFAULT_USER, password=DEFAULT_PASSWORD):
     # validate that the server is up and running
     ping(url, user, password)
 
-
 def ping(url=DEFAULT_URL, user=DEFAULT_USER, password=DEFAULT_PASSWORD):
 
     op_dict = {
@@ -37,10 +36,7 @@ def ping(url=DEFAULT_URL, user=DEFAULT_USER, password=DEFAULT_PASSWORD):
 
     response_json = postToHarper(op_dict, url, 'harperdb', 'harperdb')
 
-    if(not response_json):
-        print("Ping Failed")
-    else:
-        print(json.dumps(response_json))
+    return response_json
 
 def showLogs():
 
@@ -54,17 +50,6 @@ def showLogs():
 	}
 
 	printResponse(postToHarper(opt_dict, url=DEFAULT_URL, user=DEFAULT_USER, password=DEFAULT_PASSWORD))
-
-def convertSize(size_bytes):
-   if size_bytes == 0:
-       return "0B"
-   size_name = ("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")
-   i = int(math.floor(math.log(size_bytes, 1024)))
-   p = math.pow(1024, i)
-   s = round(size_bytes / p, 2)
-   return "%s %s" % (s, size_name[i])
-
-
 
 def printResponse(response):
     pp_json(response)
@@ -140,11 +125,40 @@ def postToHarper(data, url="http://localhost:9925", user='harperdb', password='h
     response = requests.request(
         "POST", url, data=json.dumps(data), headers=headers)
 
+    print (data)
     print(response)
     return response.json()
 
-## insert a numpy array as a harperdb table 
+
 def insert_narray(narray, label, schema=DEFAULT_SCHEMA, initialize_schema=False):
+
+    size = sys.getsizeof(narray)
+    dir_size = getDirectorySize(DEFAULT_HDB_PATH)
+
+    print("Directory Size: ")
+    print(dir_size)
+    
+    data = [
+        {
+            "id": uuid.uuid4().hex,
+            "time_stamp": time.time(),
+            "size": size,
+            "size_on_disk": getDirectorySize(DEFAULT_HDB_PATH),
+            "narray": narray.tolist()
+        }
+    ]
+
+    op_dict = {
+        'operation': 'insert',
+        'schema': schema,
+        'table': label,
+        'records': data
+    }
+
+    print(postToHarper(op_dict))
+
+## insert a numpy array as a harperdb table 
+def insert_narray_x_y(narray, label, schema=DEFAULT_SCHEMA, initialize_schema=False):
 
     size = sys.getsizeof(narray)
     dir_size = getDirectorySize(DEFAULT_HDB_PATH)
