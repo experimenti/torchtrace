@@ -1,28 +1,24 @@
 import json
 import numpy as np
 
-def scaleNumpy(iterations=5):
+## build an array of D1, D2 dimensions
+def numpyArrayToJson(iterations=5):
 
 	dict = {}
-	attrib = 'attrib_'
 
-	for k in range(0, iterations):
+	for k in range(1, iterations):
 
 		D1, D2 = k + iterations, k + iterations	
 
 		w1 = np.random.randn(D1, D2)
 
 		for (x,y), value in np.ndenumerate(w1):
-			print("x, y")
-			print(x, y)
+			x_attribute = 'x' + str(k) 
+			y_attribute = 'y' + str(k) 
+			element = x_attribute + '_' + y_attribute
 
-		#Dump data dict to jason
-		j = json.dumps(w1.tolist()) 
-
-		attrib = 'attrib_' + str(k) 
-		dict[attrib]=w1.tolist()
+			dict[element]=w1[x, y]
 		
-	print (dict)
 	return dict
 
 

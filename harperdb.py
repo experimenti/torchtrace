@@ -151,7 +151,6 @@ def insert_narray(narray, label, schema=DEFAULT_SCHEMA, initialize_schema=False)
 
     print("Directory Size: ")
     print(dir_size)
-
     
     data = [
         {
