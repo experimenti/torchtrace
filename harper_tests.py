@@ -24,13 +24,6 @@ class HarperTests(unittest.TestCase):
 
     def test_create_schema(self):
         result = hdb.createSchema(user=DEFAULT_USER, password=DEFAULT_PASSWORD, url=DEFAULT_URL, schema_name=DEFAULT_SCHEMA)
-        print(result)
-
-        for k, v in result.items():
-            print(k, v)
-
-    def test_drop_schema(self):
-        result = hdb.createSchema()
 
     def test_dimension_scale(self):
         #10x10 matrix
