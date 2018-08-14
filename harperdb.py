@@ -176,8 +176,6 @@ def getDirectorySize(path=DEFAULT_HDB_PATH):
 
     return checksize.get_size()
 
-
-
 def exportResults(schema=DEFAULT_SCHEMA, table=DEFAULT_TABLE):
 
     schema_table = schema + '.' + table

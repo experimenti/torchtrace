@@ -1,9 +1,8 @@
 import json
 import numpy as np
 
-def dynamicScaleNumpyArray():
+def scaleNumpy(iterations=5):
 
-	iterations = 5 
 	dict = {}
 	attrib = 'attrib_'
 
@@ -23,6 +22,7 @@ def dynamicScaleNumpyArray():
 		attrib = 'attrib_' + str(k) 
 		dict[attrib]=w1.tolist()
 		
+	print (dict)
 	return dict
 
 
