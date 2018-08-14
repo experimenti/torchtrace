@@ -1,7 +1,7 @@
 import json
 import numpy as np
 
-def dynamicArrayBloat():
+def dynamicScaleNumpyArray():
 
 	iterations = 5 
 	dict = {}
@@ -23,11 +23,7 @@ def dynamicArrayBloat():
 		attrib = 'attrib_' + str(k) 
 		dict[attrib]=w1.tolist()
 		
-		print(dict)
-
 	return dict
 
-result = dynamicArrayBloat()
-print(result)
 
 
