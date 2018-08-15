@@ -4,20 +4,35 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 
-matplotlib.use('agg')
-
 # =============================================================================
 #load data
 data = pd.read_csv('./results/s_trace.csv') #edit path
-data = data.sort_values(by=['time_stamp'])
-data['cummulative_frequency'] = data['size'].cumsum()
-print(data.describe())
-print(data.head)
 
-#correlation data
-corr_data = data.corr()
-print(corr_data['cummulative_frequency'].sort_values(ascending=False)) 
-print(corr_data['size_on_disk'].sort_values(ascending=False)) 
+
+total_inserted_bytes = data['size'].sum()
+print("Total inserted serialized data (bytes): {0}".format(total_inserted_bytes))
+
+data = data.sort_values(by=['time_stamp'])
+data['total_write_events'] = data['size_on_disk'].cumsum()
+data['total_serialized_bytes_inserted'] = data['size'].cumsum() 
+
+print('Total serialized data insert size: {0} '.format(str(data['total_serialized_bytes_inserted'])))
+print('Total disk write events: {0} '.format(str(data['total_write_events'])))
+
+# print(type(data))
+
+# print(data.describe())
+# print(data.head)
+
+# print('Cummulative Sum: {0} '.format(data['cummulative_sum'])
+
+# correlation data
+
+#corr_data = data.corr()
+
+# print(corr_data['cummulative_frequency'].sort_values(ascending=False)) 
+# print(corr_data['size_on_disk'].sort_values(ascending=False)) 
+
 # from data correlation result can summarize that the data is high bias
 # =============================================================================
 
