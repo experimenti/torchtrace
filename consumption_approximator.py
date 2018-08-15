@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import utils
 from sklearn.linear_model import LinearRegression
+from numpy import array 
 
 
 # =============================================================================
@@ -22,23 +23,24 @@ data['size_on_disk'].max() - data['size_on_disk'].min()
 friendly_inserted_bytes = utils.bytes_2_human_readable(total_inserted_bytes)
 print(friendly_inserted_bytes)
 
+data = data.sort_values(by=['time_stamp'])
+x = data['size'].cumsum()
+y = data['size_on_disk'].diff().fillna(0).cumsum()
+
 print("Total inserted serialized data: {0}".format(utils.bytes_2_human_readable(total_inserted_bytes)))
 print("Total disk consumption: {0}".format(utils.bytes_2_human_readable(total_disk_consumed)))
 
-data = data.sort_values(by=['time_stamp'])
-data['total_serialized_bytes_inserted'] = data['size'].cumsum()
 
-x = data['total_serialized_bytes_inserted']  # Memory usage
-y = data['size_on_disk']  # Disk Consumed
+model = LinearRegression()
+model.fit(x[:, np.newaxis], y)
 
-# creat y_predict
-model = LinearRegression(fit_intercept=True)
+print('Disk Consumption Equation: = {} x Inserted Data (MB) + {}'.format(model.coef_[0], model.intercept_))
+size = float(input('enter size of Memory (bytes) to predict Disk Consumption = '))
 
-x = x[:, np.newaxis]
-model.fit(x, y)
+pred = model.predict(size*1000000)
+readable_estimate = utils.bytes_2_human_readable(pred)
 
-print('Disk Consumption Equation: = {} x Inserted Data (bytes) + {}'.format(model.coef_[0], model.intercept_))
-size = float(input('enter size of Memory (MB) to predict Disk Consumption = '))
-print('Disk Consumption Estimate = {} '.format(utils.bytes_2_human_readable(model.predict(size*1000000))))
+print('Disk Consumption Estimate = {} '.format(readable_estimate))
+
 
 
