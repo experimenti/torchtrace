@@ -130,7 +130,7 @@ def postToHarper(data, url="http://localhost:9925", user='harperdb', password='h
     return response.json()
 
 
-def insert_narray(narray, label, schema=DEFAULT_SCHEMA, initialize_schema=False):
+def insert_narray_serialized(narray, label, schema=DEFAULT_SCHEMA, initialize_schema=False):
 
     size = sys.getsizeof(narray)
     dir_size = getDirectorySize(DEFAULT_HDB_PATH)
@@ -165,25 +165,32 @@ def insert_narray_x_y(narray, label, schema=DEFAULT_SCHEMA, initialize_schema=Fa
 
     print("Directory Size: ")
     print(dir_size)
-    
-    data = [
-        {
-            "id": uuid.uuid4().hex,
-            "time_stamp": time.time(),
-            "size": size,
-            "size_on_disk": getDirectorySize(DEFAULT_HDB_PATH),
-            "narray": narray.tolist()
+    print(narray.shape)
+    print(narray.size)
+    size_on_disk = getDirectorySize(DEFAULT_HDB_PATH)
+
+    #For each K_V add a record!
+    for (k,v), value in np.ndenumerate(narray):
+        data = [
+            {
+                "id": uuid.uuid4().hex,
+                "x" : k, 
+                "y" : v,
+                "value": value,
+                "time_stamp": time.time(),
+                "size": size,
+                "size_on_disk": size_on_disk
+            }
+        ]
+
+        op_dict = {
+            'operation': 'insert',
+            'schema': schema,
+            'table': label,
+            'records': data
         }
-    ]
 
-    op_dict = {
-        'operation': 'insert',
-        'schema': schema,
-        'table': label,
-        'records': data
-    }
-
-    print(postToHarper(op_dict))
+        print(postToHarper(op_dict))
 
 def getDirectorySize(path=DEFAULT_HDB_PATH):
 

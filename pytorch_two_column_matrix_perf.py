@@ -10,7 +10,7 @@ loss_history = []
 now = dt.datetime.now()
 
 def frameToHarper(narray, label):
-    hdb.insert_narray(narray, label)
+    hdb.insert_narray_x_y(narray, label)
 
 def initSchema():
     hdb.dropSchema()
@@ -38,10 +38,14 @@ def trainNetwork(persist='HarperDB'):
 
     # N is batch size; D_in is input dimension;
     # H is hidden dimension; D_out is output dimension.
-    D1, D2 =  1000, 100 
+    N, D_in, H, D_out = 64, 1000, 100, 1
+
+    x = np.random.randn(N, D_in)
+    y = np.random.randn(N, D_out)
 
     # Randomly initialize weights
-    w1 = np.random.randn(D1, D2)
+    w1 = np.random.randn(D_in, H)
+    w2 = np.random.randn(H, D_out)
 
     learning_rate = 1e-6
 
@@ -49,7 +53,6 @@ def trainNetwork(persist='HarperDB'):
 
         if(t%10 == 0):
             print('epoch' + str(t))
-
         # Forward pass: compute predicted y
         h = x.dot(w1)
         h_relu = np.maximum(h, 0)
@@ -72,10 +75,7 @@ def trainNetwork(persist='HarperDB'):
 
         #Save the weights 
         if(persist=='HarperDB'):
-
             frameToHarper(w1, 'trace')
-        else:
-            frameToExcel(w1, 'trace')
 
 initSchema()
 runPersistBenchmark()

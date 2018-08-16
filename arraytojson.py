@@ -2,24 +2,25 @@ import json
 import numpy as np
 
 ## build an array of D1, D2 dimensions
-def numpyArrayToJson(iterations=5):
+def jsonFromNumpyArray(ndarray):
 
-	dict = {}
+	array_dict = {}
 
-	for k in range(1, iterations):
+	iterations = ndarray.size
+	print("Array Size {0}".format(iterations))
 
-		D1, D2 = k + iterations, k + iterations	
+	array_dict = dict(np.ndenumerate(ndarray))
+	#for k in range(1, iterations):
 
-		w1 = np.random.randn(D1, D2)
 
-		for (x,y), value in np.ndenumerate(w1):
-			x_attribute = 'x' + str(k) 
-			y_attribute = 'y' + str(k) 
-			element = x_attribute + '_' + y_attribute
+		# for (x,y), value in np.ndenumerate(ndarray):
+		# 	x_attribute = 'x' + str(k) 
+		# 	y_attribute = 'y' + str(k) 
+		# 	element = x_attribute + '_' + y_attribute
 
-			dict[element]=w1[x, y]
+		# 	dict[element]=ndarray[x, y]
 		
-	return dict
+	return array_dict
 
 
 
