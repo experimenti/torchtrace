@@ -9,12 +9,13 @@ from numpy import array
 
 # =============================================================================
 # load data
-data = pd.read_csv('./results/s_trace.csv')  # edit path
+data = pd.read_csv('./results/50Inserts_Records_10x10.csv')  # edit path
 
 total_inserted_bytes = data['size'].sum()
 
 max_size_disk = data['size_on_disk'].max()
 min_size_disk = data['size_on_disk'].min()
+
 print("max {0}".format(max_size_disk))
 print("min {0}".format(min_size_disk))
 

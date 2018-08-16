@@ -14,7 +14,7 @@ def frameToExcel(narray, label):
     df.to_excel(writer, sheet_name=label)
 
 def frameToHarper(narray, label):
-    hdb.insert_narray(narray, label)
+    hdb.insert_narray_serialized(narray, label)
 
 def initSchema():
     hdb.dropSchema()
@@ -53,7 +53,7 @@ def runPersistBenchmark(persist='HarperDB'):
 def trainExpandingNetwork(persist='HarperDB'):
 
     # N is batch size; D_in is input dimension;
-0    # H is hidden dimension; D_out is output dimension.
+    # H is hidden dimension; D_out is output dimension.
     N, D_in, H, D_out = 64, 1000, 100, 1
     # Create random input and output data
     x = np.random.randn(N, D_in)

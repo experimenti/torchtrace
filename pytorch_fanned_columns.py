@@ -10,7 +10,7 @@ loss_history = []
 now = dt.datetime.now()
 
 def frameToHarper(narray, label):
-    hdb.insert_narray_x_y(narray, label)
+    hdb.insert_narray_x_y_fanned(narray, label)
 
 def initSchema():
     hdb.dropSchema()
@@ -46,7 +46,7 @@ def trainNetwork(persist='HarperDB'):
     # Randomly initialize weights
     w1 = np.random.randn(D_in, H)
     w2 = np.random.randn(H, D_out)
-    w3 = np.random.rand(100,100)
+    w3 = np.random.rand(10,10)
 
     learning_rate = 1e-6
 

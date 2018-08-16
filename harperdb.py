@@ -20,7 +20,7 @@ DEFAULT_HASH = 'id'
 DEFAULT_URL = 'http://localhost:9925'
 DEFAULT_USER = 'harperdb'
 DEFAULT_PASSWORD = 'harperdb'
-DEFAULT_HDB_PATH = '/hdb/john_hdb'
+DEFAULT_HDB_PATH = '/data/hdb'
 
 
 def connect(url=DEFAULT_URL, user=DEFAULT_USER, password=DEFAULT_PASSWORD):
@@ -125,7 +125,7 @@ def postToHarper(data, url="http://localhost:9925", user='harperdb', password='h
     response = requests.request(
         "POST", url, data=json.dumps(data), headers=headers)
 
-    print (data)
+    # print (data)
     print(response)
     return response.json()
 
@@ -158,6 +158,53 @@ def insert_narray_serialized(narray, label, schema=DEFAULT_SCHEMA, initialize_sc
     print(postToHarper(op_dict))
 
 ## insert a numpy array as a harperdb table 
+def insert_narray_x_y_fanned(narray, label, schema=DEFAULT_SCHEMA, initialize_schema=False):
+
+    size = sys.getsizeof(narray)
+    dir_size = getDirectorySize(DEFAULT_HDB_PATH)
+
+    print("Directory Size: ")
+    print(dir_size)
+    print("Array Size: ")
+    print(size)
+    print("Array Size: ")
+    print(narray.shape)
+    print(narray.size)
+    size_on_disk = getDirectorySize(DEFAULT_HDB_PATH)
+
+
+    record_data = [] 
+    #For each K_V add a record!
+    for (k,v), value in np.ndenumerate(narray):
+        data = { 
+                "id": uuid.uuid4().hex,
+                 "{0}".format(str(k)) : value,
+                "time_stamp": time.time(),
+                "size": size,
+                "size_on_disk": size_on_disk
+            }
+
+        record_data.append(data)
+
+    op_dict = {
+        "operation": 'insert',
+        "schema": schema,
+        "table": label,
+        "records": record_data 
+        }
+
+    print(op_dict)
+    print("Posting to HDB")
+    print("Post Size: ")
+    op_size = sys.getsizeof(op_dict)
+    print(op_size)
+    print(postToHarper(op_dict))
+
+def getDirectorySize(path=DEFAULT_HDB_PATH):
+
+    return checksize.get_size(path=DEFAULT_HDB_PATH)
+
+## insert a numpy array as a harperdb table 
 def insert_narray_x_y(narray, label, schema=DEFAULT_SCHEMA, initialize_schema=False):
 
     size = sys.getsizeof(narray)
@@ -165,48 +212,58 @@ def insert_narray_x_y(narray, label, schema=DEFAULT_SCHEMA, initialize_schema=Fa
 
     print("Directory Size: ")
     print(dir_size)
+    print("Array Size: ")
+    print(size)
+    print("Array Size: ")
     print(narray.shape)
     print(narray.size)
     size_on_disk = getDirectorySize(DEFAULT_HDB_PATH)
 
+
+    record_data = [] 
     #For each K_V add a record!
     for (k,v), value in np.ndenumerate(narray):
-        data = [
-            {
+        data = { 
                 "id": uuid.uuid4().hex,
-                "x" : k, 
-                "y" : v,
+                "x": k,
+                "y": v,
                 "value": value,
                 "time_stamp": time.time(),
                 "size": size,
                 "size_on_disk": size_on_disk
             }
-        ]
 
-        op_dict = {
-            'operation': 'insert',
-            'schema': schema,
-            'table': label,
-            'records': data
+        record_data.append(data)
+
+    op_dict = {
+        "operation": 'insert',
+        "schema": schema,
+        "table": label,
+        "records": record_data 
         }
 
-        print(postToHarper(op_dict))
+    # print(op_dict)
+    print("Posting to HDB")
+    print("Post Size: ")
+    op_size = sys.getsizeof(op_dict)
+    print(op_size)
+    print(postToHarper(op_dict))
 
 def getDirectorySize(path=DEFAULT_HDB_PATH):
 
-    return checksize.get_size()
+    return checksize.get_size(path=DEFAULT_HDB_PATH)
 
-def exportResults(schema=DEFAULT_SCHEMA, table=DEFAULT_TABLE):
+def exportResults(schema=DEFAULT_SCHEMA, table=DEFAULT_TABLE, results_dir='/home/john/code/torchtrace/results'):
 
     schema_table = schema + '.' + table
-    query = "select time_stamp, size, size_on_disk from {0}".format(schema_table) 
+    query = "select time_stamp, size, size_on_disk from {0} order by time_stamp".format(schema_table) 
     
     print("Result Export Query: " + query)
 
     op_dict = {
         "operation": "export_local",
         "format": "csv",
-        "path":  '/home/john/results',
+        "path":  results_dir,
         "search_operation": {
             "operation": "sql",
                 "sql": query 
