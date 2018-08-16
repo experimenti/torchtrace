@@ -53,8 +53,8 @@ def runPersistBenchmark(persist='HarperDB'):
 def trainExpandingNetwork(persist='HarperDB'):
 
     # N is batch size; D_in is input dimension;
-    # H is hidden dimension; D_out is output dimension.
-    N, D_in, H, D_out = 64, 1000, 100, 10
+0    # H is hidden dimension; D_out is output dimension.
+    N, D_in, H, D_out = 64, 1000, 100, 1
     # Create random input and output data
     x = np.random.randn(N, D_in)
     y = np.random.randn(N, D_out)
