@@ -20,7 +20,7 @@ DEFAULT_HASH = 'id'
 DEFAULT_URL = 'http://localhost:9925'
 DEFAULT_USER = 'harperdb'
 DEFAULT_PASSWORD = 'harperdb'
-DEFAULT_HDB_PATH = '/data/hdb'
+DEFAULT_HDB_PATH = '/data/hdc'
 
 
 def connect(url=DEFAULT_URL, user=DEFAULT_USER, password=DEFAULT_PASSWORD):
@@ -178,7 +178,7 @@ def insert_narray_x_y_fanned(narray, label, schema=DEFAULT_SCHEMA, initialize_sc
     for (k,v), value in np.ndenumerate(narray):
         data = { 
                 "id": uuid.uuid4().hex,
-                 "{0}".format(str(k)) : value,
+                 "k{0}".format(str(k)) : value,
                 "time_stamp": time.time(),
                 "size": size,
                 "size_on_disk": size_on_disk

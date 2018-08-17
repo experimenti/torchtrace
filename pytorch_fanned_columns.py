@@ -46,7 +46,7 @@ def trainNetwork(persist='HarperDB'):
     # Randomly initialize weights
     w1 = np.random.randn(D_in, H)
     w2 = np.random.randn(H, D_out)
-    w3 = np.random.rand(10,10)
+    w3 = np.random.rand(100,10)
 
     learning_rate = 1e-6
 
