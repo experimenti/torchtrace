@@ -11,8 +11,6 @@ import os
 import time
 import uuid
 import checksize
-#import asyncio
-#import aiohttp
 
 DEFAULT_SCHEMA = 'torchtrace'
 DEFAULT_TABLE = 'trace'
@@ -162,19 +160,10 @@ def insert_narray_x_y_fanned(narray, label, schema=DEFAULT_SCHEMA, initialize_sc
 
     size = sys.getsizeof(narray)
     dir_size = getDirectorySize(DEFAULT_HDB_PATH)
-
-    print("Directory Size: ")
-    print(dir_size)
-    print("Array Size: ")
-    print(size)
-    print("Array Size: ")
-    print(narray.shape)
-    print(narray.size)
     size_on_disk = getDirectorySize(DEFAULT_HDB_PATH)
 
-
     record_data = [] 
-    #For each K_V add a record!
+
     for (k,v), value in np.ndenumerate(narray):
         data = { 
                 "id": uuid.uuid4().hex,
@@ -195,7 +184,6 @@ def insert_narray_x_y_fanned(narray, label, schema=DEFAULT_SCHEMA, initialize_sc
 
     print(op_dict)
     print("Posting to HDB")
-    print("Post Size: ")
     op_size = sys.getsizeof(op_dict)
     print(op_size)
     print(postToHarper(op_dict))
@@ -210,15 +198,7 @@ def insert_narray_x_y(narray, label, schema=DEFAULT_SCHEMA, initialize_schema=Fa
     size = sys.getsizeof(narray)
     dir_size = getDirectorySize(DEFAULT_HDB_PATH)
 
-    print("Directory Size: ")
-    print(dir_size)
-    print("Array Size: ")
-    print(size)
-    print("Array Size: ")
-    print(narray.shape)
-    print(narray.size)
     size_on_disk = getDirectorySize(DEFAULT_HDB_PATH)
-
 
     record_data = [] 
     #For each K_V add a record!
@@ -244,9 +224,7 @@ def insert_narray_x_y(narray, label, schema=DEFAULT_SCHEMA, initialize_schema=Fa
 
     # print(op_dict)
     print("Posting to HDB")
-    print("Post Size: ")
     op_size = sys.getsizeof(op_dict)
-    print(op_size)
     print(postToHarper(op_dict))
 
 def getDirectorySize(path=DEFAULT_HDB_PATH):
@@ -319,6 +297,3 @@ def batchInsertTensors(iterations=1, schema=DEFAULT_SCHEMA, table=DEFAULT_TABLE,
 
         print(postToHarper(op_dict))
 
-#createSchema()
-#batchInsertTensors(100)
-# exportTableToCSV()
